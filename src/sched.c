@@ -30,15 +30,15 @@ struct pcb_t * get_proc(void) {
 		 for(i=0;i<run_queue.size;i++)
 		{
 			ready_queue.proc[i]=run_queue.proc[i];
+			run_queue.proc[i] = NULL;
 		}	
 		 ready_queue.size = run_queue.size;
 		 run_queue.size = 0;
-		 proc = ready_queue.proc[ready_queue.size-1];
+		 proc = dequeue(&ready_queue);
 	}
-	else
-		{
-			proc=ready_queue.proc[ready_queue.size-1];
-		}
+	else {
+		proc = dequeue(&ready_queue);	
+	}
 	pthread_mutex_unlock(&queue_lock);	
 	return proc;
 }

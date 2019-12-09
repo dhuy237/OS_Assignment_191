@@ -24,6 +24,7 @@ void enqueue(struct queue_t * q, struct pcb_t * proc) {
 		}
 		q->proc[i+1]=proc;
 		q->size++;
+		//printf("size%d",q->size);
 		return;
 	}
 
@@ -33,12 +34,12 @@ struct pcb_t * dequeue(struct queue_t * q) {
 	/* TODO: return a pcb whose prioprity is the highest
 	 * in the queue [q] and remember to remove it from q
 	 * */
-	if(q->size!=0 )
+	if(q->size!=0)
 	{
+		struct pcb_t *temp = q->proc[q->size - 1];
+		q->proc[q->size- 1]=NULL;
 		q->size--;
-		struct pcb_t *temp = q->proc[q->size];
-		q->proc[q->size]=NULL;
-			return temp;
+		return temp;
 	}
 	return NULL;
 	
