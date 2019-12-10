@@ -53,7 +53,7 @@ static struct page_table_t * get_page_table(
 	int i;
 	for (i = 0; i < seg_table->size; i++) {
 		// Enter your code here
-		if((seg_table->table[i].v_index) = index){
+		if(seg_table->table[i].v_index == index){
 			return seg_table->table[i].pages;
 		}
 	}
@@ -122,7 +122,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 
 	int free_frame[1024]; // store the index of free_using space in mem
 	// Check Virtual Address
-	if( 1 << 20 - proc->bp >= num_pages * PAGE_SIZE){
+	if( (1 << 20) - (proc->bp) >= num_pages * PAGE_SIZE){
 		//printf(" H ");
 		// Check Physical Address
 		int num_zero_mem = 0;
@@ -150,10 +150,15 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 		 * 	- Add entries to segment table page tables of [proc]
 		 * 	  to ensure accesses to allocated memory slot is
 		 * 	  valid. */
-		
+
+		//printf(" ret_mem: %d \n", ret_mem);
+		//printf(" ret_mem: %d \n", ret_mem - (1<<10));
+        int fla = -1;
 		for(int i = 0; i < num_pages; i++){
 			//printf(" R3 \n");
-			// [index]
+			// [proc]
+			_mem_stat[ free_frame[i] ].proc = proc->pid;
+			// [index]                      
 			_mem_stat[ free_frame[i] ].index = i;
 			// [next]
 			//printf(" R4 \n");
@@ -163,22 +168,37 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 			else _mem_stat[temp_index].next = -1;
 			// [proc->seg_table]
 			//printf(" R5 \n");
-			int firs_lv = (ret_mem + i*PAGE_SIZE) >> 15; 
+			int firs_lv = get_first_lv(ret_mem + i*PAGE_SIZE); 
 			int sec_lv = get_second_lv(ret_mem + i*PAGE_SIZE);
 			proc->seg_table->table[firs_lv].v_index = firs_lv;
+			//printf("1st, 2st: %d, %d \n", firs_lv, sec_lv);
 			// second level
-			if(1) {
+
+			if( sec_lv == 0) {
 				proc->seg_table->table[firs_lv].pages = 
 					(struct seg_table_t*)malloc(sizeof(struct seg_table_t));
-				printf (" C \n");
+				printf (" C0 \n");
+				fla = firs_lv; 
+			}
+
+			if( sec_lv == 1 && fla != firs_lv) {
+				proc->seg_table->table[firs_lv].pages = 
+					(struct seg_table_t*)malloc(sizeof(struct seg_table_t));
+				printf (" C1 \n");
 			}
 			//printf(" R6 \n");
 			proc->seg_table->table[firs_lv].pages->size++;
+			//printf(" R6 \n");
 			proc->seg_table->table[firs_lv].pages->table[sec_lv].v_index = sec_lv;
 			proc->seg_table->table[firs_lv].pages->table[sec_lv].p_index = free_frame[i];
-			//printf(" R7 \n");
+
+			// printf("v, p: %d, %d \n", 
+			// 	proc->seg_table->table[firs_lv].pages->table[sec_lv].v_index, 
+			// 		proc->seg_table->table[firs_lv].pages->table[sec_lv].p_index);
+
 		}
 		proc->seg_table->size = ( (proc->bp >> 10) / 32 ) + 1;
+
 
 	}
 	pthread_mutex_unlock(&mem_lock);
@@ -194,6 +214,47 @@ int free_mem(addr_t address, struct pcb_t * proc) {
 	 * 	  the process [proc].
 	 * 	- Remember to use lock to protect the memory from other
 	 * 	  processes.  */
+
+	 pthread_mutex_lock(&mem_lock);
+	
+	int one_lv = get_first_lv(address);
+	int two_lv = get_second_lv(address);
+	int indexx;
+	int count_size = 0;
+
+	for(int i = 0; i < 10; i++){
+		if(address == proc->regs[i]){
+			//something happen
+			printf("Add: %d, Regis: %d \n", address, proc->regs[i]);
+			printf("1st: %d, 2nd: %d \n", one_lv, two_lv);
+			indexx = proc->seg_table->table[one_lv].pages->table[two_lv].p_index;
+			// clear physical mem
+			while(_mem_stat[indexx].next != -1){
+				_mem_stat[indexx].proc = 0;
+				_mem_stat[indexx].index = 0;
+				int temp = indexx;
+				indexx = _mem_stat[indexx].next;
+				_mem_stat[temp].next = 0;
+				count_size++;
+			}
+			if(_mem_stat[indexx].next == -1){
+				_mem_stat[indexx].proc = 0;
+				_mem_stat[indexx].index = 0;
+				_mem_stat[indexx].next = 0;
+				count_size++;	
+			}
+			// clear virtual mem
+			/*
+			for(int i = 0; i < count_size; i++ ){
+				proc->seg_table->table[one_lv].pages->table[two_lv + i].v_index = 0;
+				proc->seg_table->table[one_lv].pages->table[two_lv + i].p_index = 0;
+				proc->seg_table->table[one_lv].pages->size--;
+			}
+			for(int i = two_lv)
+			*/
+		}
+	}
+	pthread_mutex_unlock(&mem_lock);
 	return 0;
 }
 
