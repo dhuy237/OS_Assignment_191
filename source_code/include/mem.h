@@ -27,6 +27,8 @@ int write_mem(addr_t address, struct pcb_t * proc, BYTE data);
 
 void dump(void);
 
+void mem_content(struct pcb_t * proc);
+
 #endif
 
 

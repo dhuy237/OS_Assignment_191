@@ -1,4 +1,3 @@
-
 #include "cpu.h"
 #include "mem.h"
 
@@ -72,6 +71,9 @@ int run(struct pcb_t * proc) {
 	default:
 		stat = 1;
 	}
+
+	mem_content(proc);
+
 	return stat;
 
 }

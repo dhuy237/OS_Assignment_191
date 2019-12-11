@@ -1,4 +1,3 @@
-
 #include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +19,6 @@ static int timer_stop = 0;
 
 static void * timer_routine(void * args) {
 	while (!timer_stop) {
-		printf("Time slot %3lu\n", current_time());
 		int fsh = 0;
 		int event = 0;
 		/* Wait for all devices have done the job in current
@@ -43,7 +41,7 @@ static void * timer_routine(void * args) {
 
 		/* Increase the time slot */
 		_time++;
-		
+	printf("Time slot %3lu\n",current_time());	
 		/* Let devices continue their job */
 		for (temp = dev_list; temp != NULL; temp = temp->next) {
 			pthread_mutex_lock(&temp->id.timer_lock);
@@ -82,6 +80,7 @@ uint64_t current_time() {
 
 void start_timer() {
 	timer_started = 1;
+	printf("Time slot 0\n");
 	pthread_create(&_timer, NULL, timer_routine, NULL);
 }
 
@@ -130,7 +129,3 @@ void stop_timer() {
 		free(temp);
 	}
 }
-
-
-
-
