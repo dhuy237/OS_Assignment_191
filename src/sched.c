@@ -41,6 +41,7 @@ printf("PID,Priority:");
 		}	
 		 ready_queue.size = run_queue.size;
 		 run_queue.size = 0;
+<<<<<<< HEAD
 		  printf("Ready queue push\n");
         printf("Ready queue-size: %d\n",ready_queue.size);
 	printf("PID,Priority:");
@@ -62,6 +63,11 @@ printf("PID,Priority:");
         for(int j=0;j<ready_queue.size;j++){
         printf("%d-%d\n ",ready_queue.proc[j]->pid, ready_queue.proc[j]->priority);
 	}}
+=======
+		 proc = dequeue(&ready_queue);
+	}
+	else {
+>>>>>>> 1e00b14b741e4f881fc825eaa068000f81780d6c
 		proc = dequeue(&ready_queue);	
 	}
 	pthread_mutex_unlock(&queue_lock);	

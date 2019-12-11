@@ -81,7 +81,11 @@ uint64_t current_time() {
 
 void start_timer() {
 	timer_started = 1;
+<<<<<<< HEAD
 	printf("Time slot   0\n");
+=======
+	printf("Time slot 0\n");
+>>>>>>> 1e00b14b741e4f881fc825eaa068000f81780d6c
 	pthread_create(&_timer, NULL, timer_routine, NULL);
 }
 
