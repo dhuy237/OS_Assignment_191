@@ -56,14 +56,14 @@ printf("PID,Priority:");
 
 
 	}
-	else { printf("Ready queue status\n");
-        printf("Ready queue-size: %d\n",ready_queue.size);
+	else { 
+		//printf("Ready queue status\n");
+        //printf("Ready queue-size: %d\n",ready_queue.size);
 	if(ready_queue.size !=0){
         printf("PID,Priority:");
         for(int j=0;j<ready_queue.size;j++){
         printf("%d-%d\n ",ready_queue.proc[j]->pid, ready_queue.proc[j]->priority);
 	}
-
 		 proc = dequeue(&ready_queue);
 	}
 	else {
