@@ -80,7 +80,6 @@ static int translate(
 	struct page_table_t * page_table = NULL;
 	page_table = get_page_table(first_lv, proc->seg_table);
 
-
 	if (page_table == NULL) {
 		return 0;
 	}
@@ -111,7 +110,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 		size / PAGE_SIZE; // Number of pages we will use
 	int mem_avail = 0; // We could allocate new memory region or not?
 	
-	printf("ALLOC size: %d \n", num_pages);
+	printf("ALLOC size: %d \n", size);
 
 	/* First we must check if the amount of free memory in
 	 * virtual address space and physical address space is
@@ -133,7 +132,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 				free_frame[num_zero_mem] = i;
 				num_zero_mem++;
 				if (num_zero_mem >= num_pages) {
-					mem_avail = 1;
+					mem_avail = 1; 
 					//printf(" R1 & num_zeo_mem: %d \n", num_pages);
 					break;
 				}
@@ -178,7 +177,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 					(struct seg_table_t*)malloc(sizeof(struct seg_table_t));
 				proc->seg_table->size++;
 				firs_lv++;
-				printf("C0--------------- \n");
+				//printf("C0--------------- \n");
 			}
 			else if( get_second_lv(ret_mem) == 1 && get_first_lv(ret_mem) == 0) {
 				proc->seg_table->table[firs_lv].pages = 
@@ -187,7 +186,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 					proc->seg_table->table[0].pages->table[0].p_index = -1;
 					proc->seg_table->table[firs_lv].pages->size = 1;
 					proc->seg_table->size=1;
-					printf("C1----------------- \n");
+					//printf("C1----------------- \n");
 			}
 			
 			// if( (ret_mem > 1024) && (get_first_lv(ret_mem) != get_first_lv(ret_mem + PAGE_SIZE) ) ){
@@ -210,7 +209,7 @@ addr_t alloc_mem(uint32_t size, struct pcb_t * proc) {
 			// 		 	proc->seg_table->size);
 		}
 		ret_mem = temp;
-		printf("ret_mem: %d \n",ret_mem/1024);
+		//printf("ret_mem: %d \n",ret_mem/1024);
 	}
 	//mem_content(proc);
 	pthread_mutex_unlock(&mem_lock);
@@ -229,7 +228,7 @@ int free_mem(addr_t address, struct pcb_t * proc) {
 	
 	
 	 pthread_mutex_lock(&mem_lock);
-	printf("clear at: %d \n", address/1024);
+	printf("FREE at: %d \n", address);
 	int one_lv = get_first_lv(address);
 	int two_lv = get_second_lv(address);
 	int indexx;
@@ -292,13 +291,15 @@ int free_mem(addr_t address, struct pcb_t * proc) {
 }
 
 void mem_content( struct pcb_t * proc ){
+	printf("\n");
 		printf("_________ALLOCATE___________\n");
 	printf("	Frame used in memory: \n");
 	printf("	");
 	for (int i =0 ; i<NUM_PAGES; i++)
 	if (_mem_stat[i].proc !=0) printf("%d  ",i);
-	
 	printf("\n");
+	//printf("\n");
+	/*
 	printf("	Segments used in virtual: \n");
 	for (int i = 0; i<proc->seg_table->size; i++) 
 	{
@@ -309,6 +310,7 @@ void mem_content( struct pcb_t * proc ){
 			proc->seg_table->table[i].pages->table[j].p_index);
 		printf("\n\n");
 	}
+	*/
 }
 
 int read_mem(addr_t address, struct pcb_t * proc, BYTE * data) {

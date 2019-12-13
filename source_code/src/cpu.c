@@ -72,7 +72,7 @@ int run(struct pcb_t * proc) {
 		stat = 1;
 	}
 
-	//mem_content(proc);
+	mem_content(proc);
 
 	return stat;
 
